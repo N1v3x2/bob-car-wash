@@ -1,0 +1,29 @@
+This problem is designed to test knowledge of optimization problems, specifically the differences between when to use greedy approaches vs dynamic programming to solve a problem. This problem asks the solver to find the maximum amount of money that Bob can make washing cars, subject to the two time constraints: the amount of time Bob has today and the amount of time each customer is willing to wait.
+
+A naive approach to this problem might try to find the best ratio $\frac{a}{t}$, where $a$ is the amount of money gained from washing a car and $t$ is the amount of time needed to wash that car. Then, we can greedily choose the cars with the best ratios until Bob runs out of time. However, this approach won't work, because greedily choosing the cars with the best ratios could result in a situation where Bob still has time remaining but doesn't have enough time to wash any of the remaining cars. 
+
+Another potential approach involves recursion to explore all possible ways of washing cars and choosing the best among those. At any point in time, Bob can either choose to spend $t_i$ time washing car $i$ (and earn $a_i$ money), or skip car $i$ without spending any time. We can define our recursion as such: 
+
+$$\text{money}(i, m) =
+\begin{cases}
+	0 & \text{if } i = n \text{ and } m \geq 0 \\
+	-\infty & \text{if } m < 0 \\
+	\max \begin{cases}
+		\text{money}(i + 1, m) \\
+		a_i + \text{money}(i + 1, m - t_i)
+	\end{cases} & \text{otherwise}
+\end{cases}$$
+
+This recurrence relation works, because this problem exhibits the "optimal substructure" property, where optimal solutions to subproblems can be combined to find the optimal solution to a larger problem. In this case, the larger problem is, "what's the most money Bob can earn starting with $m$ time?" and a subproblem could be, "what's the most money Bob can earn starting with $m - t_i$ time after washing car $i$?"
+
+The problem with naive recursion is that there are too many subproblems. The number of search paths is $2^n$, where $n$ is the number of customers. This is because Bob can either choose to wash or not wash customer $i$'s car, and he can make the same choice for every customer. Since $1 \leq n \leq 10^5$, an $O(2^n)$ solution will definitely be too slow.
+
+To solve this problem, we need to realize that there are potentially many overlapping subproblems. For example, let's say after washing some cars, Bob has $x$ time left to wash the remaining cars. Bob could have reached this state after washing cars $1, 2, 3$ or $3, 5, 6$ or any other combination of cars that result in him having only $x$ time left. This means that any number of search paths could converge on the same subproblem, resulting in unnecessary repeated computation. 
+
+We introduce dynamic programming, which memoizes the results of unique subproblems, allowing us to avoid recomputing overlapping subproblems. In fact, this problem is a simple example of the common "knapsack" DP pattern, where the goal is to find the best way to put items into a bag of some capacity that maximizes its value.
+
+By examining the recurrence relation above, we can see that the number of unique subproblems is determined by $n \times m$ , where $n$ is the number of cars and $m$ is the amount of time Bob has at the beginning of the day. We multiply these two values because we want to account for any possible amount of time Bob has left $(1 \leq \text{current time} \leq m)$ when considering whether to wash car $i\ (1 \leq i \leq n)$. Solving each unique subproblem only once results in a final time complexity of $O(n \cdot m)$, which is fast enough with the given constraints.
+
+However, there is one last twist: the amount of time each customer is willing to wait for Bob to start washing their car. If we look at the sample input, we can see that the optimal solution is for Bob to wash cars $1, 2, 3, 5$ (skipping $4$). If we used the DP approach above, we would first wash cars $1$ and $2$, which takes $1 + 2 = 3$ minutes to do. However, when we get to customer $3$, they've already left because $3 > 0$, so we would erroneously think that the optimal solution doesn't involve washing customer $3$'s car.
+
+To solve this, we need to first sort the input by each customer's "patience" in ascending order before running DP. When sorting, we need to make sure that we also sort the corresponding entries for $a$ (money gained from washing each car) and $t$ (amount of time needed to wash each car).
