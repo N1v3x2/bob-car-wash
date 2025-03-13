@@ -38,13 +38,13 @@ int main() {
     memo.resize(n, vector<ll>(m + 1, -1));
 
     vector<tuple<int, int, int>> tmp(n);
-    for (int i = 0; i < n; ++ i) tmp[i] = { patience[i], money[i], need[i] };
+    for (int i = 0; i < n; ++ i) tmp[i] = { patience[i], need[i], money[i] };
     sort(tmp.begin(), tmp.end());
     for (int i = 0; i < n; ++i) {
         auto& [x, y, z] = tmp[i];
         patience[i] = x;
-        money[i] = y;
-        need[i] = z;
+        need[i] = y;
+        money[i] = z;
     }
 
     cout << dp(0, 0) << nl;
