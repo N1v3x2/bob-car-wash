@@ -1,5 +1,3 @@
-problem_format_version: 2023-07-draft
-name: "Bob's Car Wash"
-uuid: c29d6b4c-cc1f-4f67-a7d4-ef758499f01f
-version: "1"
+author: Kevin Zhang
+name: bobcarwash
 license: public domain
